@@ -1,0 +1,6 @@
+@BeBeauty_HostAddress = http://localhost:5209
+
+GET {{BeBeauty_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
