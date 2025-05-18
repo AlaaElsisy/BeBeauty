@@ -2,6 +2,7 @@
 using System.Text;
 using BeBeauty.Mapping;
 using BeBeauty.Models;
+using BeBeauty.Models.identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,8 @@ namespace BeBeauty
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication();
             #endregion
             #region jwt
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -35,7 +38,7 @@ namespace BeBeauty
                    ValidateIssuer = false,
                    ValidateIssuerSigningKey = true,
                    IssuerSigningKey = new SymmetricSecurityKey(
-                       Encoding.ASCII.GetBytes("hi from jwt task for api lab day four"))
+                       Encoding.ASCII.GetBytes(builder.Configuration["jwt:key"])),
                };
            });
 
@@ -59,6 +62,7 @@ namespace BeBeauty
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
 
             app.MapControllers();
