@@ -22,15 +22,8 @@ namespace BeBeauty.Repository
         public T GetById(int id)
         {
 
-            var entity = _Context.Set<T>().Find(id);
-            if (entity != null)
-            {
-                return entity;
-            }
-            else
-            {
-                throw new Exception("Entity not found");
-            }
+           return _Context.Set<T>().Find(id);
+            
         }
         public void Add(T entity)
         {

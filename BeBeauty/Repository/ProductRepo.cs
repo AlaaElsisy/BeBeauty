@@ -10,6 +10,20 @@ namespace BeBeauty.Repository
         {
             con = applicationDbContext;
         }
+
+        public List<Product> GetProductsByCategoryId(int categoryId)
+        {
+            return con.Products.Where(p => p.CategoryId == categoryId).ToList();
+        }
+        public List<Product> GetProductsByName(string productName)
+        {
+           
+            return con.Products
+               .Where(p => p.Name.ToLower().Contains(productName.ToLower()))
+               .ToList();
+        }
+       
+
     }
-     
+
 }

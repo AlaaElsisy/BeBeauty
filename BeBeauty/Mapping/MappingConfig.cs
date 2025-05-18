@@ -8,7 +8,9 @@ namespace BeBeauty.Mapping
     {
         public MappingConfig() {
 
-            CreateMap<Product,Displayproduct>();
+            CreateMap<Product, Displayproduct>().ReverseMap();
+            CreateMap<Product, AddProduct>().ReverseMap();
+
         }
     }
 }

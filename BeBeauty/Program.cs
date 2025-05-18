@@ -3,6 +3,7 @@ using System.Text;
 using BeBeauty.Mapping;
 using BeBeauty.Models;
 using BeBeauty.Models.identity;
+using BeBeauty.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -70,6 +71,9 @@ namespace BeBeauty
             builder.Services.AddAutoMapper(typeof(MappingConfig));
             #endregion
 
+
+            builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
+            builder.Services.AddScoped<ProductRepo>();
             builder.Services.AddControllers();
             builder.Services.AddAuthorization();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
