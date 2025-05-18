@@ -4,9 +4,11 @@ using BeBeauty.Mapping;
 using BeBeauty.Models;
 using BeBeauty.Models.identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BeBeauty
 {
@@ -28,6 +30,11 @@ namespace BeBeauty
             builder.Services.AddAuthentication();
             #endregion
             #region jwt
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            });
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
            .AddJwtBearer(options =>
            {
@@ -44,27 +51,46 @@ namespace BeBeauty
 
             #endregion
 
-            builder.Services.AddAutoMapper(typeof(MappingConfig));
+            #region add cors
+            builder.Services.AddEndpointsApiExplorer();
+            string txt = "";
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(txt,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
+            #endregion
 
+            #region autoMapper
+            builder.Services.AddAutoMapper(typeof(MappingConfig));
+            #endregion
 
             builder.Services.AddControllers();
+            builder.Services.AddAuthorization();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
-
+            builder.Services.AddEndpointsApiExplorer();
+           
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                  
                 app.MapOpenApi();
+               
             }
 
             app.UseHttpsRedirection();
-
+ 
+            app.UseAuthentication();  
             app.UseAuthorization();
-            app.UseAuthentication();
-
-
+            app.UseCors(txt);
             app.MapControllers();
 
             app.Run();
