@@ -1,4 +1,6 @@
-﻿namespace BeBeauty.Models
+﻿using BeBeauty.Models.identity;
+
+namespace BeBeauty.Models
 {
     public class CartItem
     {
@@ -6,7 +8,7 @@
 
         // Foreign keys
         public string UserId { get; set; }
-        //public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; }
 
         public int ProductId { get; set; }
         public Product Product { get; set; }

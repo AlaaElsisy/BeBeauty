@@ -5,8 +5,9 @@ namespace BeBeauty.DTOs.ProductsDTos
     public class AddProduct
     {
 
-    
-        [Required]
+
+        [Required(ErrorMessage = "Product name is required.")]
+        [StringLength(100, ErrorMessage = "Product name cannot exceed 100 characters.")]
         public string Name { get; set; }
         [Required]
         public string ImageUrl { get; set; }

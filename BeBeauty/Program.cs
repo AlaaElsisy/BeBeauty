@@ -72,7 +72,7 @@ namespace BeBeauty
             #endregion
 
 
-            builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
+            builder.Services.AddScoped <GenericRepo<Category>>();
             builder.Services.AddScoped<ProductRepo>();
             builder.Services.AddControllers();
             builder.Services.AddAuthorization();
