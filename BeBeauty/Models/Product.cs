@@ -8,8 +8,8 @@ namespace BeBeauty.Models
         [Required]
         public string Name { get; set; }
         public string ImageUrl { get; set; }
-        public decimal Price { get; set; }
-        public decimal SalePrice { get; set; }
+        public int Price { get; set; }
+        public int SalePrice { get; set; }
         public string Description { get; set; }
 
         // Foreign key
