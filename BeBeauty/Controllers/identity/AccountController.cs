@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using BeBeauty.DTOs.identity;
 using BeBeauty.Models.identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +18,16 @@ namespace BeBeauty.Controllers.identity
 
         public SignInManager<ApplicationUser> SignInManager { get; }
         public IConfiguration Configuration { get; }
+        public RoleManager<IdentityRole> roleManager { get; }
 
-        public AccountController(UserManager<ApplicationUser> _userManager,SignInManager<ApplicationUser> signInManager,IConfiguration configuration)
+        public AccountController(UserManager<ApplicationUser> _userManager
+            ,SignInManager<ApplicationUser> signInManager
+            , IConfiguration configuration, RoleManager<IdentityRole> _roleManager)
         {
              userManager = _userManager;
             SignInManager = signInManager;
             Configuration = configuration;
+            roleManager = _roleManager;
         }
 
         public async Task <string> CreateToken(ApplicationUser userDto)
@@ -31,11 +36,16 @@ namespace BeBeauty.Controllers.identity
             userdata.Add(new Claim(ClaimTypes.Email, userDto.Email));
 
             userdata.Add(new Claim(ClaimTypes.GivenName,userDto.UserName));
+            var roles = await userManager.GetRolesAsync(userDto);
+            foreach (var role in roles)
+            {
+                userdata.Add(new Claim(ClaimTypes.Role, role));
+            }
             string key = Configuration["jwt:key"];
             
             var skey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(key));
             var signicher = new SigningCredentials(skey, SecurityAlgorithms.HmacSha256);
-
+            
             var tokenobj = new JwtSecurityToken(
                 claims: userdata,
                 expires: DateTime.Now.AddDays(15),
@@ -67,19 +77,23 @@ namespace BeBeauty.Controllers.identity
             };
 
             var created_user= await userManager.CreateAsync(user, registerDto.Password);
+            await userManager.AddToRoleAsync(user, "User");
+
             if (!created_user.Succeeded)
             {
                 var errors = created_user.Errors.Select(e => e.Description);
                 return BadRequest(new { errors });
             }
-           // var token = CreateToken(created_user);
+
             var userDto = new UserDto
             {
 
                 UserName = user.UserName,
                 Email = user.Email,
-               
-                token =  await CreateToken(user)
+
+                token = await CreateToken(user),
+                Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User"
+
             };
             return Ok(userDto);
         }
@@ -109,5 +123,26 @@ namespace BeBeauty.Controllers.identity
             };
             return Ok(userDto);
         }
+
+        [HttpPost("add-role")]
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> AddRole([FromBody] string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+                return BadRequest("Role name cannot be empty.");
+
+            var roleExists = await roleManager.RoleExistsAsync(roleName);
+            if (roleExists)
+                return BadRequest("Role already exists.");
+
+            var result = await roleManager.CreateAsync(new IdentityRole(roleName));
+
+            if (result.Succeeded)
+                return Ok($"Role '{roleName}' created successfully.");
+            else
+                return BadRequest(result.Errors);
+        }
+
+
     }
 }
