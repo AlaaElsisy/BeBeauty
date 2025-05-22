@@ -10,7 +10,7 @@ namespace BeBeauty.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class ProductController : ControllerBase
     {
 
@@ -285,6 +285,34 @@ namespace BeBeauty.Controllers
                 };
 
                 return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet("search/description")]
+        public IActionResult GetProductsByDescription([FromQuery] string description)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(description))
+                {
+                    return BadRequest("Description must be provided.");
+                }
+
+                var products = ProductRepo.GetProductsByDescription(description);
+
+                if (products == null || !products.Any())
+                {
+                    return NotFound("No products found with the given description.");
+                }
+
+                var productDtos = mapper.Map<List<Displayproduct>>(products);
+
+                return Ok(productDtos);
             }
             catch (Exception ex)
             {

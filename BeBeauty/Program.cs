@@ -75,6 +75,7 @@ namespace BeBeauty
             builder.Services.AddScoped <GenericRepo<Category>>();
             builder.Services.AddScoped<ProductRepo>();
             builder.Services.AddScoped<OrderRepo>();
+            builder.Services.AddScoped<CartRepo>();
             builder.Services.AddControllers();
             builder.Services.AddAuthorization();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -90,9 +91,9 @@ namespace BeBeauty
                 app.MapOpenApi();
                
             }
-
+            app.UseRouting();
             app.UseHttpsRedirection();
- 
+            app.UseStaticFiles();
             app.UseAuthentication();  
             app.UseAuthorization();
             app.UseCors(txt);

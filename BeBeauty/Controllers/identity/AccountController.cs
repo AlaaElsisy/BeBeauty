@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using BeBeauty.DTOs.identity;
+using BeBeauty.DTOs.identityDtos;
 using BeBeauty.Models.identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -92,7 +93,7 @@ namespace BeBeauty.Controllers.identity
                 Email = user.Email,
 
                 token = await CreateToken(user),
-                Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User"
+                Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() 
 
             };
             return Ok(userDto);
@@ -119,6 +120,8 @@ namespace BeBeauty.Controllers.identity
             {
                 UserName = user.UserName,
                 Email = user.Email,
+                Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ,
+
                 token = await CreateToken(user)
             };
             return Ok(userDto);
@@ -143,6 +146,25 @@ namespace BeBeauty.Controllers.identity
                 return BadRequest(result.Errors);
         }
 
+        [HttpPost("assign-role")]
+        [Authorize(Roles = "Admin")]  
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto model)
+        {
+            var user = await  userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+                return NotFound("User not found.");
+
+            var roleExists = await  roleManager.RoleExistsAsync(model.Role);
+            if (!roleExists)
+                return BadRequest("Role does not exist.");
+
+            var result = await  userManager.AddToRoleAsync(user, model.Role);
+
+            if (result.Succeeded)
+                return Ok("Role assigned successfully.");
+
+            return BadRequest(result.Errors);
+        }
 
     }
 }
