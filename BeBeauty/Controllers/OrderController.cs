@@ -11,6 +11,7 @@ namespace BeBeauty.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly OrderRepo orderRepo;
