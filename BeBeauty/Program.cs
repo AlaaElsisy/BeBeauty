@@ -94,6 +94,7 @@ namespace BeBeauty
             app.UseRouting();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+          
             app.UseAuthentication();  
             app.UseAuthorization();
             app.UseCors(txt);

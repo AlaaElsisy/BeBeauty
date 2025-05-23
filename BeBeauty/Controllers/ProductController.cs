@@ -92,7 +92,8 @@ namespace BeBeauty.Controllers
 
 
         [HttpPost]
-        public IActionResult AddProduct([FromBody] AddProduct productDto)
+        [Consumes("multipart/form-data")]
+        public IActionResult AddProduct([FromForm] AddProduct productDto)
         {
             try
             {
@@ -116,9 +117,26 @@ namespace BeBeauty.Controllers
 
                     return BadRequest(new { Errors = errors });
                 }
+                string uniqueFileName = null;
+                if (productDto.ImageFile != null && productDto.ImageFile.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    Directory.CreateDirectory(uploadsFolder); // Create folder if it doesn't exist
+                    uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(productDto.ImageFile.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        productDto.ImageFile.CopyTo(stream);
+                    }
+                }
 
+                // Map DTO to entity
                 var product = mapper.Map<Product>(productDto);
+                product.ImageUrl = $"/images/{uniqueFileName}"; // Store relative path
+
+
+        
                 ProductRepo.Add(product);
                 ProductRepo.Save();
                 return CreatedAtAction("GetProductByid", new { id = product.ProductId }, product);
@@ -131,7 +149,9 @@ namespace BeBeauty.Controllers
 
 
         [HttpPut("{id}")]
-        public IActionResult UpdateProduct(int id, [FromBody] Displayproduct productDto)
+        [Consumes("multipart/form-data")]
+
+        public IActionResult UpdateProduct(int id, [FromForm] UpdateProductDto productDto)
         {
             try
             {
@@ -165,6 +185,21 @@ namespace BeBeauty.Controllers
                     return NotFound("No product found");
                 }
                 var updatedProduct = mapper.Map(productDto, existingProduct);
+
+                if (productDto.ImageFile != null && productDto.ImageFile.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(productDto.ImageFile.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        productDto.ImageFile.CopyTo(stream);
+                    }
+
+                    existingProduct.ImageUrl = $"/images/{uniqueFileName}";
+                }
                 ProductRepo.Update(updatedProduct);
                 ProductRepo.Save();
                 return NoContent();

@@ -93,7 +93,8 @@ namespace BeBeauty.Controllers.identity
                 Email = user.Email,
 
                 token = await CreateToken(user),
-                Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() 
+                Role = (await userManager.GetRolesAsync(user)).FirstOrDefault(),
+                userid = user.Id
 
             };
             return Ok(userDto);
@@ -122,7 +123,8 @@ namespace BeBeauty.Controllers.identity
                 Email = user.Email,
                 Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ,
 
-                token = await CreateToken(user)
+                token = await CreateToken(user),
+                userid = user.Id
             };
             return Ok(userDto);
         }

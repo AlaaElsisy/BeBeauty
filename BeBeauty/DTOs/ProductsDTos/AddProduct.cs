@@ -10,7 +10,7 @@ namespace BeBeauty.DTOs.ProductsDTos
         [StringLength(100, ErrorMessage = "Product name cannot exceed 100 characters.")]
         public string Name { get; set; }
         [Required]
-        public string ImageUrl { get; set; }
+        //public string ImageUrl { get; set; }
         [Range(1, 999999, ErrorMessage = "Price must be greater than or equal to 1.")]
         public decimal Price { get; set; }
 
@@ -22,5 +22,6 @@ namespace BeBeauty.DTOs.ProductsDTos
 
         [Required]
         public int CategoryId { get; set; }
+        public IFormFile ImageFile { get; set; }
     }
 }

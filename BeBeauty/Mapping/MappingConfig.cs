@@ -13,7 +13,9 @@ namespace BeBeauty.Mapping
 
             CreateMap<Product, Displayproduct>().ReverseMap();
             CreateMap<Product, AddProduct>().ReverseMap();
-
+             
+            CreateMap<UpdateProductDto, Product>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
             /////
             CreateMap<Category, DisplayCategory>().ReverseMap();
             ///////////////////////////////////////////////
